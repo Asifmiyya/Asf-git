@@ -9,28 +9,28 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                git branch: "${jenkins}", url: "${https://github.com/Asifmiyya/Asf-git.git}"
+                git branch: "${BRANCH}", url: "${REPO_URL}"
             }
         }
 
         stage('Install Dependencies') {
             steps {
                 sh 'echo Installing dependencies...'
-                sh 'npm install'  // Change this for your app (e.g., `mvn install` for Java)
+                sh 'npm install'  // Change for your app (e.g., `mvn install` for Java)
             }
         }
 
         stage('Run Tests') {
             steps {
                 sh 'echo Running tests...'
-                sh 'npm test'  // Modify as per your project
+                sh 'npm test'  // Modify for your project
             }
         }
 
         stage('Build') {
             steps {
                 sh 'echo Building the project...'
-                sh 'npm run build'  // Modify as per your project
+                sh 'npm run build'  // Modify for your project
             }
         }
 
@@ -44,10 +44,10 @@ pipeline {
 
     post {
         success {
-            echo 'Pipeline completed successfully!'
+            echo '✅ Pipeline completed successfully!'
         }
         failure {
-            echo 'Pipeline failed. Check logs!'
+            echo '❌ Pipeline failed. Check logs!'
         }
     }
 }
