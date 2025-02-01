@@ -1,53 +1,58 @@
 pipeline {
-    agent any
+    agent any  
 
     environment {
-        REPO_URL = 'https://github.com/Asifmiyya/Asf-git.git'
-        BRANCH = 'jenkins'
+        PYTHON_VERSION = '3.8'  // You can change this to your desired version
+        VENV_DIR = 'venv'        // Directory for the virtual environment
     }
 
     stages {
-        stage('Checkout Code') {
+        stage('Checkout') {
             steps {
-                git branch: "${BRANCH}", url: "${REPO_URL}"
+                git branch: 'mail', url: 'https://github.com/Asifmiyya/Asf-git.git'
             }
         }
 
-        stage('Install Dependencies') {
+        stage('Set up Python Environment') {
             steps {
-                sh 'echo Installing dependencies...'
-                sh 'npm install'  // Change for your app (e.g., `mvn install` for Java)
+                script {
+                    sh 'python${PYTHON_VERSION} -m venv $VENV_DIR'  
+                    sh '. $VENV_DIR/bin/activate && pip install -r requirements.txt'  
+                }
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh 'echo Running tests...'
-                sh 'npm test'  // Modify for your project
-            }
-        }
-
-        stage('Build') {
-            steps {
-                sh 'echo Building the project...'
-                sh 'npm run build'  // Modify for your project
+                script {
+                    sh '. $VENV_DIR/bin/activate && pytest --maxfail=1 --disable-warnings -q'
+                }
             }
         }
 
         stage('Deploy') {
+            when {
+                branch 'main' 
+            }
             steps {
-                sh 'echo Deploying application...'
-                sh 'echo Deployment successful!'  // Replace with actual deployment script
+                script {
+                    echo 'Deploying the application...'
+                }
             }
         }
     }
 
     post {
-        success {
-            echo '✅ Pipeline completed successfully!'
+        always {
+            sh 'deactivate'  // Deactivating the  virtual environment if needed
         }
+
+        success {
+            echo 'Build and tests passed successfully!'
+        }
+
         failure {
-            echo '❌ Pipeline failed. Check logs!'
+            echo 'There was a failure in the build or tests.'
         }
     }
 }
